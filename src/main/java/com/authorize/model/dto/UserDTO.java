@@ -5,6 +5,7 @@ import java.util.List;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,6 +14,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDTO {
@@ -26,4 +28,5 @@ public class UserDTO {
 	@Pattern(regexp = "^(ROLE_PROJECT_ADMIN|ROLE_FILED_SUPPORTER|ROLE_FIELD_MANAGER)$", message = "role must be either ROLE_PROJECT_ADMIN, ROLE_FIELD_SUPPORTER or ROLE_FIELD_MANAGER")
 	private List<String> role;
 	private String orgs;
+	private String reportingTo;
 }

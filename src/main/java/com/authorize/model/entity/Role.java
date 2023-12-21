@@ -36,9 +36,9 @@ public class Role {
     List<User> user;
 	
 	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinTable(name = "role_previlage", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "previlage_id"))
+	@JoinTable(name = "role_privilege", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "privilege_id"))
 	@JsonIgnore
-	private List<Previlage> previlage;
+	private List<Privilege> privilege;
 
 	public Role(String name) {
 		this.name = name;
