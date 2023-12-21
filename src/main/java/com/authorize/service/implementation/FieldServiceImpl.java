@@ -26,32 +26,38 @@ public class FieldServiceImpl implements FieldService {
 	private OrganizationRepository organizationRepository;
 
 	@Override
-	public Field addField(FieldDTO field) {
-		log.info("entered service of inserting..{}", field.toString());
+	public FieldDTO addField(FieldDTO field) {
 		Organization orgs = Optional.ofNullable(organizationRepository.findByName(field.getFarmHolding()))
 				.orElseThrow(() -> new OrganizationNotFoundException("no org found with provided name"));
-		return fieldRepository.save(Field.builder().title(field.getTitle()).farmHolding(orgs).build());
+		Field newField = fieldRepository.save(Field.builder().title(field.getTitle()).farmHolding(orgs).build());
+		log.info("new field created successfully!");
+		return convertToDTO(newField);
 	}
 
 	@Override
-	public Field updateField(FieldDTO field) {
+	public FieldDTO updateField(FieldDTO field) {
 		log.info("entered service of updating..{}", field.toString());
 		Organization orgs = Optional.ofNullable(organizationRepository.findByName(field.getFarmHolding()))
 				.orElseThrow(() -> new OrganizationNotFoundException("no org found with provided name"));
-		return fieldRepository
+		Field updatedField = fieldRepository
 				.save(Field.builder().id(field.getId()).title(field.getTitle()).farmHolding(orgs).build());
+		log.info("updated field successfully!!");
+		return convertToDTO(updatedField);
 	}
 
 	@Override
 	public void deleteField(int id) {
-		log.info("deleteing field of id {}", id);
 		fieldRepository.deleteById(id);
+		log.info("deleted field successfully");
 	}
 
 	@Override
-	public List<Field> viewFields() {
+	public List<FieldDTO> viewFields() {
 		log.info("obtaining data from db");
-		return fieldRepository.findAll();
+		return fieldRepository.findAll().stream().map(this::convertToDTO).toList();
 	}
 
+	private FieldDTO convertToDTO(Field field) {
+		return FieldDTO.builder().id(field.getId()).title(field.getTitle()).farmHolding(field.getTitle()).build();
+	}
 }

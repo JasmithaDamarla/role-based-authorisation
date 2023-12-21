@@ -12,5 +12,4 @@ public class SynAuthServiceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(SynAuthServiceApplication.class, args);
 	}
-
 }

@@ -29,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration	
 public class SecurityConfig {
 	
+	
 	protected static final String[] PUBLIC_PATHS = {
             "/v3/api-docs.yaml",
             "/v3/api-docs/**",
@@ -41,9 +42,9 @@ public class SecurityConfig {
             "/api/fields"
     };
 	
-	private static final String ADMIN = "ROLE_PROJECT_ADMIN";
-	private static final String SUPPORTER = "ROLE_FIELD_SUPPORTER";
-	private static final String MANAGER = "ROLE_FIELD_MANAGER";
+	private static final String ADMIN = "PROJECT_ADMIN";
+	private static final String SUPPORTER = "FIELD_SUPPORTER";
+	private static final String MANAGER = "FIELD_MANAGER";
 	
     protected static final String[] VIEW_ROLES = {ADMIN,SUPPORTER,MANAGER};
     protected static final String[] DELETE_ROLES = {ADMIN,SUPPORTER};
@@ -78,16 +79,20 @@ public class SecurityConfig {
         return httpSecurity
                 .authorizeHttpRequests(authorize -> authorize
                     .requestMatchers(PUBLIC_PATHS).permitAll()
-                    .requestMatchers(HttpMethod.GET,"/api/orgs").hasAnyAuthority(VIEW_ROLES)
-                    .requestMatchers(HttpMethod.POST,"/api/orgs").hasAnyAuthority(CREATE_ROLES)
-                    .requestMatchers(HttpMethod.PUT,"/api/orgs").hasAnyAuthority(UPDATE_ROLES)
-                    .requestMatchers(HttpMethod.DELETE,"/api/orgs").hasAnyAuthority(DELETE_ROLES)
+                    .requestMatchers(HttpMethod.GET,"/api/orgs/**").hasAnyRole(VIEW_ROLES)
+                    .requestMatchers(HttpMethod.POST,"/api/orgs").hasAnyRole(CREATE_ROLES)
+                    .requestMatchers(HttpMethod.PUT,"/api/orgs").hasAnyRole(UPDATE_ROLES)
+                    .requestMatchers(HttpMethod.DELETE,"/api/orgs").hasAnyRole(DELETE_ROLES)
                     .anyRequest()
                     .authenticated()
                 )
                 .httpBasic(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//                .exceptionHandling()
+//                .accessDeniedHandler( new CustomAccessDeniedHandler())
+//                .and()
+//                .authenticationProvider(customAuthenticationProvider()) 
                 .build();
     }
 

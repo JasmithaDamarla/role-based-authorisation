@@ -4,11 +4,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.authorize.exceptions.FieldNotFoundException;
+import com.authorize.exceptions.OrganizationNotFoundException;
 import com.authorize.exceptions.UserNotFoundException;
 import com.authorize.model.dto.OrganizationDTO;
 import com.authorize.model.entity.Field;
@@ -34,7 +36,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 	private FieldRepository fieldRepository;
 
 	@Override
-	public Organization addOrgs(OrganizationDTO orgs) {
+	public OrganizationDTO addOrgs(OrganizationDTO orgs) {
 		log.info("entered service of inserting..{}", orgs.toString());
 		Set<Field> fields = new HashSet<>();
 		orgs.getFields().forEach(field -> {
@@ -47,13 +49,14 @@ public class OrganizationServiceImpl implements OrganizationService {
 					.orElseThrow(() -> new UserNotFoundException("no such user " + user + " found in db")));
 		});
 		log.info("fields and users obtained");
-		return organizationRepository.save(
+		Organization newOrgs = organizationRepository.save(
 				Organization.builder().city(orgs.getCity()).fields(fields).users(users).name(orgs.getName()).build());
+		log.info("created orgs data succesfully");
+		return convertToDTO(newOrgs);
 	}
 
 	@Override
-	public Organization updateOrgs(OrganizationDTO orgs) {
-		log.info("entered service of updating..");
+	public OrganizationDTO updateOrgs(OrganizationDTO orgs) {
 		Set<Field> fields = new HashSet<>();
 		orgs.getFields().forEach(field -> {
 			Field curField = Optional.ofNullable(fieldRepository.findByTitle(field))
@@ -62,8 +65,6 @@ public class OrganizationServiceImpl implements OrganizationService {
 		});
 		Set<User> users = new HashSet<>();
 		orgs.getUsers().forEach(user -> {
-//			users.add(Optional.ofNullable(userRepository.findByName(user))
-//					.orElseThrow(() -> new UserNotFoundException("no such such " + user + " found")));
 			User existingUser = Optional.ofNullable(userRepository.findByName(user))
 					.orElseThrow(() -> new UserNotFoundException("no such such " + user + " found"));
 			users.add(existingUser);
@@ -72,8 +73,10 @@ public class OrganizationServiceImpl implements OrganizationService {
 			userRepository.save(existingUser);
 		});
 		log.info("users and field are retrieved");
-		return organizationRepository.save(Organization.builder().id(orgs.getId()).city(orgs.getCity()).fields(fields)
-				.users(users).name(orgs.getName()).build());
+		Organization updateOrgs = organizationRepository.save(Organization.builder().id(orgs.getId())
+				.city(orgs.getCity()).fields(fields).users(users).name(orgs.getName()).build());
+		log.info("updated orgs data succesfully");
+		return convertToDTO(updateOrgs);
 	}
 
 	@Override
@@ -84,9 +87,23 @@ public class OrganizationServiceImpl implements OrganizationService {
 
 	@Transactional
 	@Override
-	public List<Organization> viewOrgs() {
+	public List<OrganizationDTO> viewOrgs() {
 		log.info("loading all rows");
-		return organizationRepository.findAll();
+		return organizationRepository.findAll().stream().map(this::convertToDTO).toList();
+	}
+
+	@Override
+	public OrganizationDTO viewOrgsByName(String name) {
+		Organization orgs = Optional.ofNullable(organizationRepository.findByName(name))
+				.orElseThrow(() -> new OrganizationNotFoundException("orgs not found of name " + name));
+		log.info("obtained org of name {}", name);
+		return convertToDTO(orgs);
+	}
+
+	private OrganizationDTO convertToDTO(Organization orgs) {
+		return OrganizationDTO.builder().city(orgs.getCity()).name(orgs.getName()).id(orgs.getId())
+				.fields(orgs.getFields().stream().map(Field::getTitle).collect(Collectors.toSet()))
+				.users(orgs.getUsers().stream().map(User::getName).collect(Collectors.toSet())).build();
 	}
 
 }

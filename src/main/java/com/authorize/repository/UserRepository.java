@@ -9,5 +9,7 @@ import com.authorize.model.entity.User;
 public interface UserRepository extends JpaRepository<User, Integer>{
 	
 	User findByName(String name);
+	boolean existsByNameAndOrganizationName(String reportingTo, String orgs);
+	void deleteByName(String userName);
 	
 }

@@ -33,16 +33,14 @@ public class RestControllerExceptionHandler {
 	}
 	
 	@ExceptionHandler(UnAuthorizedException.class)
-	@ResponseStatus(value=HttpStatus.BAD_REQUEST)
 	public ResponseEntity<ExceptionResponse> handleUserException(UnAuthorizedException userException, WebRequest req) {
 		log.info("Unauthorised exception has been raised : {}",userException.getMessage());
 		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date().toString(),
 				HttpStatus.BAD_REQUEST.name(),userException.getMessage(), req.getDescription(false));
-		return new ResponseEntity<>(exceptionResponse,HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(exceptionResponse,HttpStatus.UNAUTHORIZED);
 	}
 	
 	@ExceptionHandler(UserNotFoundException.class)
-	@ResponseStatus(value=HttpStatus.BAD_REQUEST)
 	public ResponseEntity<ExceptionResponse> handleUserException(UserNotFoundException userException, WebRequest req) {
 		log.info("UserNotFoundException exception has been raised : {}",userException.getMessage());
 		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date().toString(),
@@ -51,7 +49,6 @@ public class RestControllerExceptionHandler {
 	}
 	
 	@ExceptionHandler(SignUpFailedException.class)
-	@ResponseStatus(value=HttpStatus.BAD_REQUEST)
 	public ResponseEntity<ExceptionResponse> handleTraineeException(SignUpFailedException signupfail, WebRequest req) {
 		log.info("signupfailed exception has been raised : {}",signupfail.getMessage());
 		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date().toString(),
@@ -60,7 +57,6 @@ public class RestControllerExceptionHandler {
 	}
 	
 	@ExceptionHandler(RuntimeException.class)
-	@ResponseStatus(value=HttpStatus.BAD_REQUEST)
 	public ResponseEntity<ExceptionResponse> handleRuntimeException(RuntimeException runtime, WebRequest req) {
 		log.info("Run time exception has been raised : {}",runtime.getMessage());
 		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date().toString(),
